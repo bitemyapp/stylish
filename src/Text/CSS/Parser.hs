@@ -1,19 +1,25 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Text.CSS.Parser
-  ( AST(..), css ) where
+  ( AST(..)
+  , Rule(..)
+  , RuleSet(..)
+  , runCssParser ) where
 
 import Text.Parsec
 import Text.Parsec.String
 import Control.Applicative((<*), (*>))
+
 type Selector = String
 
-data Rule     = Rule String String deriving Show
-data RuleSet  = RuleSet [Rule] deriving Show
+-- General types
+data Rule     = Rule String String deriving ( Show, Eq )
+data RuleSet  = RuleSet [Rule] deriving ( Show, Eq )
 
+-- CSS AST
 data AST =
     Comment
   | Form Selector RuleSet
-  deriving ( Show )
+  deriving ( Show, Eq )
 
 -- | Returns a parser that skips whitespace on both sides
 lexeme :: Parser a -> Parser a
@@ -65,6 +71,5 @@ cssParser parser input = case parse parser "css" input of
                            Left _  -> Nothing
                            Right v -> Just v
 
-cssString = "div { font-size: blue; color: rgba(255,255,255); }"
-
-css = cssParser (spaces *> many1 parseCss <* spaces)
+-- runCss :: Parser (Maybe AST)
+runCssParser = cssParser $ lexeme (many1 parseCss)

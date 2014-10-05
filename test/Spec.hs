@@ -7,5 +7,6 @@ main = hspec spec
 spec :: Spec
 spec = do
   describe "parsing CSS forms" $ do
-    it "should parse basic rule" $ do
-      1 `shouldBe` 2
+    it "should parse basic forms" $ do
+      runCssParser "body { background: #333; }"
+        `shouldBe` Just [Form "body" (RuleSet [Rule "background" "#333"])]

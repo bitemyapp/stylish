@@ -10,5 +10,5 @@ getExample :: FilePath -> IO T.Text
 getExample name = T.pack `fmap` readFile fullPath >>= return
     where fullPath = "examples/" `mappend` name
 
-runExample e = Parse.css <$> cssString
+runExample e = Parse.runCssParser <$> cssString
     where cssString = T.unpack <$> getExample e

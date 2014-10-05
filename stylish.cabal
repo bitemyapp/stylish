@@ -20,7 +20,8 @@ library
       containers,
       parsec,
       transformers,
-      text
+      text,
+      HTTP
   hs-source-dirs:      src
   exposed-modules:     Main, Text.CSS.Parser
   default-language:    Haskell2010

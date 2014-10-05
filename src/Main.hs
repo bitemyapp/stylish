@@ -1,10 +1,12 @@
 {-# LANGUAGE OverloadedStrings #-}
+
 module Main () where
 
 import Data.Monoid
 import Text.CSS.Parser as Parse
 import qualified Data.Text as T
 import Control.Applicative((<$>), (<*>))
+import Network.HTTP
 
 getExample :: FilePath -> IO T.Text
 getExample name = T.pack `fmap` readFile fullPath >>= return
@@ -22,4 +24,11 @@ runEither e = Parse.runCssParseEither <$> cssString
 a = runExample "comments.css"
 b = runExample "simple.css"
 c = runExample "multiple.css"
-d = runEither "bootstrap.css"
+
+-- Download bootstrap.css and run the verification steps over this for a sanity check
+getBootStrap :: IO String
+getBootStrap = simpleHTTP (getRequest file) >>= getResponseBody
+    where file = "http://getbootstrap.com/dist/css/bootstrap.min.css"
+
+-- A good overall test that the parser can handle anything
+runBootstrap = Parse.runCssParseEither <$> getBootStrap

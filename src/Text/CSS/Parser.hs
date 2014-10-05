@@ -88,7 +88,12 @@ cssParser parser input = case parse parser "css" input of
                            Left _  -> Nothing
                            Right v -> Just v
 
+runCssParseEither ::
+    String ->
+    Either ParseError [AST]
 runCssParseEither input = parse (lexeme $ many1 parseCss) "CSS3" input
 
-runCssParser :: String -> Maybe [AST]
+runCssParser ::
+    String ->
+    Maybe [AST]
 runCssParser = cssParser $ lexeme (many1 parseCss)

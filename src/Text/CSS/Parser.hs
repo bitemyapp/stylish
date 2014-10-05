@@ -3,11 +3,13 @@ module Text.CSS.Parser
   ( AST(..)
   , Rule(..)
   , RuleSet(..)
-  , runCssParser ) where
+  , runCssParser
+  , runCssParseEither ) where
 
 import Text.Parsec
 import Text.Parsec.String
 import Control.Applicative((<*), (*>))
+import Data.Char(isSpace)
 
 type Selector = String
 
@@ -24,6 +26,9 @@ data AST =
 -- | Returns a parser that skips whitespace on both sides
 lexeme :: Parser a -> Parser a
 lexeme p = spaces *> p <* spaces
+
+trim :: String -> String
+trim = let f = reverse . dropWhile isSpace in f . f
 
 rule :: Parser Rule
 rule = do
@@ -44,25 +49,36 @@ ruleSet = do
     char '}'
     return $ RuleSet rules
 
+partialRuleSet :: Parser RuleSet
+partialRuleSet = do
+    rules <- spaces >> parseRules
+    char '}'
+    return $ RuleSet rules
+
+parseSelector :: Parser String
+parseSelector = manyTill anyChar (char '{')
+
 form :: Parser AST
 form = do
-    selector <- many1 (noneOf " ")
+    selector <- parseSelector
     spaces
-    rules    <- ruleSet
+    rules    <- partialRuleSet
     spaces
-    return $ Form selector rules
+    return $ Form (trim selector) rules
 
 comment :: Parser AST
 comment = do
-    string "/*"
-    spaces
-    manyTill anyChar (string "*/")
+    string "/*" >> spaces
+    manyTill anyChar (try $ string "*/")
     spaces
     return Comment
 
+-- Parse hex colors
 -- parseHexCode :: Parser AST
 -- parseHexCode = do
 --    char '#'
+
+-- Parse RGB(A)
 
 parseCss :: Parser AST
 parseCss = comment <|> form
@@ -72,5 +88,7 @@ cssParser parser input = case parse parser "css" input of
                            Left _  -> Nothing
                            Right v -> Just v
 
--- runCss :: Parser (Maybe AST)
+runCssParseEither input = parse (lexeme $ many1 parseCss) "CSS3" input
+
+runCssParser :: String -> Maybe [AST]
 runCssParser = cssParser $ lexeme (many1 parseCss)

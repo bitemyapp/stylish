@@ -16,5 +16,10 @@ runExample ::
 runExample e = Parse.runCssParser <$> cssString
     where cssString = T.unpack <$> getExample e
 
+runEither e = Parse.runCssParseEither <$> cssString
+    where cssString = T.unpack <$> getExample e
+
 a = runExample "comments.css"
 b = runExample "simple.css"
+c = runExample "multiple.css"
+d = runEither "bootstrap.css"

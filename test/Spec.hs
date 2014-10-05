@@ -13,3 +13,6 @@ spec = do
       runCssParser "h1 { font-size: 48px; }\nh2 { font-size: 24px; }"
         `shouldBe` Just [Form "h1" (RuleSet [Rule "font-size" "48px"]),
                          Form "h2" (RuleSet [Rule "font-size" "24px"])]
+    it "should handle complex selectors" $ do
+      runCssParser "h1#large .myclass { }"
+        `shouldBe` Just [Form "h1#large .myclass" (RuleSet [])]

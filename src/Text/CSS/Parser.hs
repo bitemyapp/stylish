@@ -49,6 +49,7 @@ form = do
     selector <- many1 (noneOf " ")
     spaces
     rules    <- ruleSet
+    spaces
     return $ Form selector rules
 
 comment :: Parser AST
